@@ -1,0 +1,437 @@
+[33mcommit 23df20a9b315486bb05becd8fae0f4d78f06cc8c[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: root <root@DESKTOP-FMDGEGJ>
+Date:   Thu Apr 10 06:15:06 2025 +0000
+
+    2
+
+detector_model.onnx
+
+[33mcommit 8bc245a26de01ebb8f7f553945861702feab41ae[m
+Author: root <root@DESKTOP-FMDGEGJ>
+Date:   Thu Apr 10 06:10:45 2025 +0000
+
+    Move large files to Git LFS
+
+.gitignore
+IMG_5132.MOV
+lanedet/best320.onnx
+ufld_r18_culane_fp16.engine
+ufld_r18_culane_fp16.onnx
+
+[33mcommit d5ee521cbabe287c5d218df0eb6c1f3227391962[m
+Author: root <root@DESKTOP-FMDGEGJ>
+Date:   Thu Apr 10 05:57:17 2025 +0000
+
+    Add large files to Git LFS
+
+.gitattributes
+IMG_5132.MOV
+detector_model.onnx
+ufld_r18_culane_fp16.engine
+ufld_r18_culane_fp16.onnx
+
+[33mcommit 00875984fda60712d6604dc151b4d38ba70fea9d[m
+Author: root <root@DESKTOP-FMDGEGJ>
+Date:   Thu Apr 10 05:48:28 2025 +0000
+
+    first commit
+
+IMG_5132.MOV
+README.md
+detector_model.onnx
+engine_infe_image.py
+engine_infe_video.py
+fix.py
+images/00000.jpg
+lanedet/best320.onnx
+lanedet/datasets/process/transforms.py
+lanedet/models/backbones/mobilenet.py
+lanedet/ops/csrc/nms_kernel.cu
+onnx_infe_image.py
+onnx_infe_video.py
+pth2onnx.py
+pth_infe_image.py
+requirements.txt
+sosanh_onnx_pth.py
+ufld_r18_culane_fp16.engine
+ufld_r18_culane_fp16.onnx
+vis/00000.jpg
+vis/engine.jpg
+vis/output_video_onnx.mp4
+
+[33mcommit 06442e4933a0fbe14e3cd5723474927ad062ada3[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: root <root@DESKTOP-FMDGEGJ>
+Date:   Thu Apr 10 05:42:53 2025 +0000
+
+    first commit
+
+README.md
+
+[33mcommit cef2d0f4225f111d63e78596ef478b0cebe3ab5d[m
+Author: root <root@DESKTOP-FMDGEGJ>
+Date:   Thu Apr 10 05:41:47 2025 +0000
+
+    first commit
+
+README.md
+
+[33mcommit 56ff88c2f539799872760060d94e69c2b6bd632e[m
+Author: root <root@DESKTOP-FMDGEGJ>
+Date:   Thu Apr 10 05:40:55 2025 +0000
+
+    first commit
+
+README.md
+
+[33mcommit 35665fc9dd8d80df207fa86d2152f9f48618ffe7[m
+Author: TuZheng <zhengtuzju@gmail.com>
+Date:   Thu Mar 31 19:36:27 2022 +0800
+
+    add Dockerfile
+
+README.md
+docker/Dockerfile
+docker/README.md
+requirements.txt
+
+[33mcommit 95c06c2c5e73ef1a666fb5596e69e2d61af79b83[m
+Author: TuZheng <zhengtuzju@gmail.com>
+Date:   Wed Mar 30 09:45:29 2022 +0800
+
+    add collect_key for condlane training
+
+configs/condlane/resnet101_culane.py
+configs/condlane/resnet50_culane.py
+lanedet/datasets/process/transforms.py
+lanedet/models/heads/condlane.py
+
+[33mcommit d36ba736d0b30574563e4e7b39e86516cb75b1c5[m
+Author: TuZheng <zhengtuzju@gmail.com>
+Date:   Fri Mar 4 04:37:26 2022 +0000
+
+    add meta in base dataset
+
+lanedet/datasets/base_dataset.py
+
+[33mcommit 210709066886e4906c8d3ab4d9173785ef07c65d[m
+Author: TuZheng <36562593+Turoad@users.noreply.github.com>
+Date:   Sat Sep 11 11:06:54 2021 +0800
+
+    Add condlane (#20)
+    
+    * add condlane
+    
+    * update condlane
+    
+    * fix interface
+    
+    * minor fix
+    
+    * update config & rename models
+    
+    * add README.md for condlane
+    
+    * update datasets/registry
+    
+    * remove some magic number
+    
+    * add condlane resnet50
+    
+    * minor fix
+    
+    * update readme
+    
+    * minor fix
+    
+    Co-authored-by: zhengtu <zhengtu@fabu.ai>
+
+README.md
+configs/condlane/README.md
+configs/condlane/resnet101_culane.py
+configs/condlane/resnet50_culane.py
+configs/laneatt/README.md
+configs/laneatt/mobilenetv2_culane.py
+configs/laneatt/resnet18_culane.py
+configs/laneatt/resnet18_tusimple.py
+configs/laneatt/resnet34_tusimple.py
+configs/resa/README.md
+configs/resa/resa18_tusimple.py
+configs/resa/resa34_culane.py
+configs/resa/resa34_tusimple.py
+configs/resa/resa50_culane.py
+configs/scnn/README.md
+configs/scnn/resnet18_tusimple.py
+configs/scnn/resnet50_culane.py
+configs/ufld/README.md
+configs/ufld/resnet18_culane.py
+configs/ufld/resnet18_tusimple.py
+lanedet/datasets/base_dataset.py
+lanedet/datasets/culane.py
+lanedet/datasets/process/__init__.py
+lanedet/datasets/process/alaug.py
+lanedet/datasets/process/collect_lane.py
+lanedet/datasets/process/generate_lane_line.py
+lanedet/datasets/process/transforms.py
+lanedet/datasets/registry.py
+lanedet/engine/optimizer.py
+lanedet/engine/runner.py
+lanedet/engine/scheduler.py
+lanedet/models/__init__.py
+lanedet/models/aggregators/__init__.py
+lanedet/models/aggregators/aspp.py
+lanedet/models/aggregators/resa.py
+lanedet/models/aggregators/scnn.py
+lanedet/models/aggregators/transformer.py
+lanedet/models/backbones/__init__.py
+lanedet/models/backbones/erfnet.py
+lanedet/models/backbones/mobilenet.py
+lanedet/models/backbones/resnet.py
+lanedet/models/backbones/vgg.py
+lanedet/models/heads/__init__.py
+lanedet/models/heads/condlane.py
+lanedet/models/heads/lane_cls.py
+lanedet/models/heads/lane_seg.py
+lanedet/models/heads/laneatt.py
+lanedet/models/necks/__init__.py
+lanedet/models/necks/fpn.py
+lanedet/models/net/detector.py
+lanedet/models/nets/__init__.py
+lanedet/models/nets/detector.py
+lanedet/models/registry.py
+lanedet/utils/config.py
+requirements.txt
+tools/detect.py
+
+[33mcommit 367522c3e1aa8beb41c928005faf97388194d02a[m
+Author: Tuzheng <zhengtuzju@gmail.com>
+Date:   Fri Jul 2 20:53:54 2021 +0800
+
+    add condlane in readme
+
+README.md
+
+[33mcommit 4d5a4e73d5765c5f8bc15dd175fb380c94da2f27[m
+Author: turoad <turoad@126.com>
+Date:   Thu Jun 17 09:55:56 2021 +0800
+
+    check file
+
+lanedet/datasets/base_dataset.py
+
+[33mcommit a451684bbda295c50a58a6f00dba59172489d2c7[m
+Author: Turoad <zhengtuzju@gmail.com>
+Date:   Sat May 22 16:19:32 2021 +0800
+
+    add mobilenetv2
+
+README.md
+configs/laneatt/README.md
+configs/laneatt/mobilenetv2_culane.py
+lanedet/models/backbone/__init__.py
+lanedet/models/backbone/mobilenet.py
+lanedet/models/backbone/resnet.py
+lanedet/models/heads/laneatt.py
+
+[33mcommit f22a190b069223b9d657d3ce59bf756dc99b0aee[m
+Author: Turoad <zhengtuzju@gmail.com>
+Date:   Fri May 21 20:59:36 2021 +0800
+
+    add detect.py
+
+lanedet/datasets/base_dataset.py
+lanedet/engine/runner.py
+lanedet/utils/visualization.py
+tools/detect.py
+
+[33mcommit d03c34b50d67c1ddd3882e6afd8b44898a58dd18[m
+Author: TuZheng <36562593+Turoad@users.noreply.github.com>
+Date:   Mon May 17 18:07:14 2021 +0800
+
+    Update README.md
+
+README.md
+
+[33mcommit 5f40de541905e11161a86630aa4a289c7ee14eae[m
+Author: Tuzheng <zhengtuzju@gmail.com>
+Date:   Sat May 8 12:31:19 2021 +0800
+
+    add models and update results
+
+configs/laneatt/README.md
+configs/resa/README.md
+configs/scnn/README.md
+configs/ufld/README.md
+
+[33mcommit 911b0488201fb145467552bf979fa69a909554aa[m[33m ([m[1;33mtag: 1.0[m[33m)[m
+Author: turoad <turoad@126.com>
+Date:   Fri May 7 21:27:12 2021 +0800
+
+    refactor & add lanedet
+
+.cache/culane_anchors_freq.pt
+.cache/tusimple_anchors_freq.pt
+.gitignore
+README.md
+configs/laneatt/README.md
+configs/laneatt/resnet18_culane.py
+configs/laneatt/resnet18_tusimple.py
+configs/laneatt/resnet34_tusimple.py
+configs/resa/README.md
+configs/resa/resa18_tusimple.py
+configs/resa/resa34_culane.py
+configs/resa/resa34_tusimple.py
+configs/resa/resa50_culane.py
+configs/scnn/README.md
+configs/scnn/resnet18_tusimple.py
+configs/scnn/resnet50_culane.py
+configs/scnn/vgg16_culane.py
+configs/ufld/README.md
+configs/ufld/resnet18_culane.py
+configs/ufld/resnet18_tusimple.py
+lanedet/__init__.py
+lanedet/core/lane.py
+lanedet/datasets/__init__.py
+lanedet/datasets/base_dataset.py
+lanedet/datasets/culane.py
+lanedet/datasets/lane_cls_dataset.py
+lanedet/datasets/process/__init__.py
+lanedet/datasets/process/generate_lane_cls.py
+lanedet/datasets/process/generate_lane_line.py
+lanedet/datasets/process/process.py
+lanedet/datasets/process/transforms.py
+lanedet/datasets/registry.py
+lanedet/datasets/tusimple.py
+lanedet/engine/__init__.py
+lanedet/engine/optimizer.py
+lanedet/engine/registry.py
+lanedet/engine/runner.py
+lanedet/engine/scheduler.py
+lanedet/models/heads/__init__.py
+lanedet/models/heads/busd.py
+lanedet/models/heads/lane_cls.py
+lanedet/models/heads/lane_seg.py
+lanedet/models/heads/laneatt.py
+lanedet/models/heads/plain_decoder.py
+lanedet/models/losses/focal_loss.py
+lanedet/models/net/__init__.py
+lanedet/models/net/detector.py
+lanedet/models/net/segmentor.py
+lanedet/models/registry.py
+lanedet/ops/__init__.py
+lanedet/ops/csrc/nms.cpp
+lanedet/ops/csrc/nms_kernel.cu
+lanedet/ops/nms.py
+lanedet/runner/__init__.py
+lanedet/runner/evaluator/__init__.py
+lanedet/runner/evaluator/culane/culane.py
+lanedet/runner/evaluator/culane/lane_evaluation/.gitignore
+lanedet/runner/evaluator/culane/lane_evaluation/Makefile
+lanedet/runner/evaluator/culane/lane_evaluation/calTotal.m
+lanedet/runner/evaluator/culane/lane_evaluation/include/counter.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/include/hungarianGraph.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/include/lane_compare.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/include/spline.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/counter.cpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/evaluate.cpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/lane_compare.cpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/spline.cpp
+lanedet/runner/evaluator/tusimple/tusimple.py
+lanedet/runner/optimizer.py
+lanedet/runner/trainer/__init__.py
+lanedet/runner/trainer/lane_cls.py
+lanedet/runner/trainer/losses/dice_loss.py
+lanedet/runner/trainer/losses/focal_loss.py
+lanedet/runner/trainer/resa.py
+lanedet/runner/utils/logger.py
+lanedet/utils/config.py
+lanedet/utils/culane_metric.py
+lanedet/utils/logger.py
+lanedet/utils/mytransforms.py
+lanedet/utils/net_utils.py
+lanedet/utils/recorder.py
+lanedet/utils/transforms.py
+lanedet/utils/tusimple_metric.py
+main.py
+requirement.txt
+requirements.txt
+setup.py
+
+[33mcommit c957e1f70695e39063231612637e22fcad2769f5[m
+Author: TuZheng <zhengtuzju@gmail.com>
+Date:   Fri Apr 16 11:00:10 2021 +0800
+
+    first commit
+
+.github/_clips_0601_1494452613491980502_20.jpg
+.gitignore
+LICENSE
+README.md
+configs/resa/README.md
+configs/resa/resa18_tusimple.py
+configs/resa/resa34_tusimple.py
+configs/resa/resa50_culane.py
+configs/scnn/README.md
+configs/scnn/scnn18_tusimple.py
+configs/scnn/vgg16_culane.py
+configs/ufld/README.md
+configs/ufld/resnet18_culane.py
+configs/ufld/resnet18_tusimple.py
+lanedet/datasets/__init__.py
+lanedet/datasets/base_dataset.py
+lanedet/datasets/culane.py
+lanedet/datasets/lane_cls_dataset.py
+lanedet/datasets/registry.py
+lanedet/datasets/tusimple.py
+lanedet/models/__init__.py
+lanedet/models/aggregator/__init__.py
+lanedet/models/aggregator/aspp.py
+lanedet/models/aggregator/resa.py
+lanedet/models/aggregator/scnn.py
+lanedet/models/backbone/__init__.py
+lanedet/models/backbone/erfnet.py
+lanedet/models/backbone/resnet.py
+lanedet/models/backbone/vgg.py
+lanedet/models/heads/__init__.py
+lanedet/models/heads/busd.py
+lanedet/models/heads/exist_head.py
+lanedet/models/heads/lane_cls.py
+lanedet/models/heads/plain_decoder.py
+lanedet/models/net/__init__.py
+lanedet/models/net/segmentor.py
+lanedet/models/registry.py
+lanedet/runner/__init__.py
+lanedet/runner/evaluator/__init__.py
+lanedet/runner/evaluator/culane/culane.py
+lanedet/runner/evaluator/culane/lane_evaluation/.gitignore
+lanedet/runner/evaluator/culane/lane_evaluation/Makefile
+lanedet/runner/evaluator/culane/lane_evaluation/calTotal.m
+lanedet/runner/evaluator/culane/lane_evaluation/include/counter.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/include/hungarianGraph.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/include/lane_compare.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/include/spline.hpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/counter.cpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/evaluate.cpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/lane_compare.cpp
+lanedet/runner/evaluator/culane/lane_evaluation/src/spline.cpp
+lanedet/runner/evaluator/tusimple/lane.py
+lanedet/runner/evaluator/tusimple/tusimple.py
+lanedet/runner/optimizer.py
+lanedet/runner/registry.py
+lanedet/runner/runner.py
+lanedet/runner/scheduler.py
+lanedet/runner/trainer/__init__.py
+lanedet/runner/trainer/lane_cls.py
+lanedet/runner/trainer/losses/dice_loss.py
+lanedet/runner/trainer/losses/focal_loss.py
+lanedet/runner/trainer/resa.py
+lanedet/runner/utils/logger.py
+lanedet/runner/utils/net_utils.py
+lanedet/runner/utils/recorder.py
+lanedet/utils/__init__.py
+lanedet/utils/config.py
+lanedet/utils/mytransforms.py
+lanedet/utils/registry.py
+lanedet/utils/transforms.py
+main.py
+requirement.txt
+tools/generate_seg_tusimple.py
