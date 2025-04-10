@@ -29,8 +29,8 @@ class SmoothedValue(object):
 
     @property
     def avg(self):
-        d = torch.tensor(list(self.deque))
-        return d.mean().item()
+        d = [x.item() if torch.is_tensor(x) and x.numel() == 1 else x.mean().item() if torch.is_tensor(x) else x for x in self.deque]
+        return torch.tensor(d).mean()
 
     @property
     def global_avg(self):

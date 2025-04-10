@@ -67,6 +67,7 @@ class Runner(object):
             output = self.net(data)
             self.optimizer.zero_grad()
             loss = output['loss']
+            loss = loss.mean()
             loss.backward()
             self.optimizer.step()
             if not self.cfg.lr_update_by_epoch:

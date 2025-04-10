@@ -1,6 +1,7 @@
 work_dirs/
 predicts/
 output/
+dataset/
 data/
 
 __pycache__/

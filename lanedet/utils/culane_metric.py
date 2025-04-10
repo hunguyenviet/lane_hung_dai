@@ -1,7 +1,6 @@
 import os
 import argparse
 from functools import partial
-
 import cv2
 import numpy as np
 from tqdm import tqdm
@@ -46,6 +45,8 @@ def continuous_cross_iou(xs, ys, width=30, img_shape=(590, 1640, 3)):
 
 
 def interp(points, n=50):
+    if len(points) < 2:
+        raise ValueError("Not enough points to interpolate")
     x = [x for x, _ in points]
     y = [y for _, y in points]
     tck, u = splprep([x, y], s=0, t=n, k=min(3, len(points) - 1))
@@ -59,8 +60,12 @@ def culane_metric(pred, anno, width=30, iou_threshold=0.5, official=True, img_sh
         return 0, 0, len(anno), np.zeros(len(pred)), np.zeros(len(pred), dtype=bool)
     if len(anno) == 0:
         return 0, len(pred), 0, np.zeros(len(pred)), np.zeros(len(pred), dtype=bool)
-    interp_pred = np.array([interp(pred_lane, n=5) for pred_lane in pred], dtype=object)  # (4, 50, 2)
-    interp_anno = np.array([interp(anno_lane, n=5) for anno_lane in anno], dtype=object)  # (4, 50, 2)
+    try:
+        interp_pred = np.array([interp(pred_lane, n=5) for pred_lane in pred], dtype=object)
+        interp_anno = np.array([interp(anno_lane, n=5) for anno_lane in anno], dtype=object)
+    except ValueError as e:
+        print(f"Error in interpolation: {e}")
+        return 0, len(pred), len(anno), np.zeros(len(pred)), np.zeros(len(pred), dtype=bool)
 
     if official:
         ious = discrete_cross_iou(interp_pred, interp_anno, width=width, img_shape=img_shape)
@@ -77,20 +82,26 @@ def culane_metric(pred, anno, width=30, iou_threshold=0.5, official=True, img_sh
 
 
 def load_culane_img_data(path):
-    with open(path, 'r') as data_file:
-        img_data = data_file.readlines()
-    img_data = [line.split() for line in img_data]
-    img_data = [list(map(float, lane)) for lane in img_data]
-    img_data = [[(lane[i], lane[i + 1]) for i in range(0, len(lane), 2)] for lane in img_data]
-    img_data = [lane for lane in img_data if len(lane) >= 2]
-
+    try:
+        with open(path, 'r') as data_file:
+            img_data = data_file.readlines()
+        img_data = [line.split() for line in img_data]
+        img_data = [list(map(float, lane)) for lane in img_data]
+        img_data = [[(lane[i], lane[i + 1]) for i in range(0, len(lane), 2)] for lane in img_data]
+        img_data = [lane for lane in img_data if len(lane) >= 2]
+    except FileNotFoundError:
+        print(f"Error: File not found: {path}")
+        img_data = []
+    except Exception as e:
+        print(f"Error while reading {path}: {e}")
+        img_data = []
     return img_data
 
 
 def load_culane_data(data_dir, file_list_path):
     with open(file_list_path, 'r') as file_list:
         filepaths = [
-            os.path.join(data_dir, line[1 if line[0] == '/' else 0:].rstrip().replace('.jpg', '.lines.txt'))
+            os.path.join(data_dir, line[1 if line[0] == '/' else 0:].rstrip().replace('.png', '.lines.txt'))
             for line in file_list.readlines()
         ]
 
