@@ -137,9 +137,9 @@ if __name__ == '__main__':
     config = '/root/lanedet/configs/ufld/resnet18_culane.py'
     show = False
     output_dir = './vis'
-    image_path = '/root/lanedet/images/00000.jpg'  # Đường dẫn đến ảnh đầu vào
-    model = '/root/lanedet/ufld_r18_culane.pth'  # Vẫn cần model PyTorch để lấy phương thức get_lanes
-    onnx_model_path = '/root/lanedet/ufld_r18_culane_fp16.onnx'
+    image_path = '/root/lanedet/images/0000.png'  # Đường dẫn đến ảnh đầu vào
+    model = '/root/lanedet/work_dirs/CULane/20250413_131802_lr_1e-02_b_8/ckpt/best.pth'  # Vẫn cần model PyTorch để lấy phương thức get_lanes
+    onnx_model_path = '/root/lanedet/work_dirs/CULane/20250413_131802_lr_1e-02_b_8/ckpt/best_fp16.onnx'
     
     process(config, show, output_dir, image_path, model, onnx_model_path)
     print("=== Main execution finished ===")

@@ -113,6 +113,6 @@ if __name__ == '__main__':
     show = False
     output_dir = './vis'
     input_dir = './images/'
-    model = '/root/lanedet/ufld_r18_culane.pth'
+    model = '/root/lanedet/work_dirs/CULane/20250410_124434_lr_1e-02_b_16/ckpt/999.pth'
     
     process(config, show, output_dir, input_dir, model)

@@ -29,20 +29,89 @@ def conv1x1(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
 
 
+class ESCNAttention(nn.Module):
+    """
+    Efficient Self-Calibrated Network style attention that combines channel and spatial attention
+    into a single unified module with improved efficiency.
+    """
+    def __init__(self, channels, reduction_ratio=16):
+        super(ESCNAttention, self).__init__()
+        
+        # Channel attention components
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
+        
+        self.shared_mlp = nn.Sequential(
+            nn.Conv2d(channels, channels // reduction_ratio, kernel_size=1, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(channels // reduction_ratio, channels, kernel_size=1, bias=False)
+        )
+        
+        # Spatial attention components
+        self.conv_spatial = nn.Conv2d(2, 1, kernel_size=7, padding=3, bias=False)
+        
+        # Global correlation module
+        self.global_corr = nn.Sequential(
+            nn.Conv2d(channels, channels // reduction_ratio, kernel_size=1, bias=False),
+            nn.BatchNorm2d(channels // reduction_ratio),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(channels // reduction_ratio, channels, kernel_size=1, bias=False),
+            nn.BatchNorm2d(channels),
+            nn.Sigmoid()
+        )
+        
+        self.sigmoid = nn.Sigmoid()
+        
+        # Balance parameters
+        self.gamma_channel = nn.Parameter(torch.zeros(1))
+        self.gamma_spatial = nn.Parameter(torch.zeros(1))
+        self.gamma_global = nn.Parameter(torch.zeros(1))
+
+    def forward(self, x):
+        # Original input for residual connection
+        identity = x
+        
+        # Channel attention
+        avg_out = self.shared_mlp(self.avg_pool(x))
+        max_out = self.shared_mlp(self.max_pool(x))
+        channel_attention = self.sigmoid(avg_out + max_out)
+        
+        # Apply channel attention
+        x_channel = x * channel_attention
+        
+        # Spatial attention
+        avg_spatial = torch.mean(x_channel, dim=1, keepdim=True)
+        max_spatial, _ = torch.max(x_channel, dim=1, keepdim=True)
+        spatial_features = torch.cat([avg_spatial, max_spatial], dim=1)
+        spatial_attention = self.sigmoid(self.conv_spatial(spatial_features))
+        
+        # Apply spatial attention
+        x_spatial = x_channel * spatial_attention
+        
+        # Global correlation (inspired by self-attention)
+        b, c, h, w = x.size()
+        x_global = self.global_corr(x)
+        x_global = x * x_global
+        
+        # Combine all attention mechanisms with learnable weights
+        output = identity + self.gamma_channel * (x_channel - identity) + \
+                self.gamma_spatial * (x_spatial - x_channel) + \
+                self.gamma_global * (x_global - identity)
+        
+        return output
+
+
 class BasicBlock(nn.Module):
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
+                 base_width=64, dilation=1, norm_layer=None, use_attention=True):
         super(BasicBlock, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         if groups != 1 or base_width != 64:
             raise ValueError(
                 'BasicBlock only supports groups=1 and base_width=64')
-        # if dilation > 1:
-        #     raise NotImplementedError(
-        #         "Dilation > 1 not supported in BasicBlock")
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv3x3(inplanes, planes, stride, dilation=dilation)
         self.bn1 = norm_layer(planes)
@@ -51,6 +120,11 @@ class BasicBlock(nn.Module):
         self.bn2 = norm_layer(planes)
         self.downsample = downsample
         self.stride = stride
+        
+        # Use unified ESCN-style attention instead of separate CA and SA
+        self.use_attention = use_attention
+        if use_attention:
+            self.attention = ESCNAttention(planes)
 
     def forward(self, x):
         identity = x
@@ -61,6 +135,10 @@ class BasicBlock(nn.Module):
 
         out = self.conv2(out)
         out = self.bn2(out)
+        
+        # Apply unified attention
+        if self.use_attention:
+            out = self.attention(out)
 
         if self.downsample is not None:
             identity = self.downsample(x)
@@ -75,7 +153,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
+                 base_width=64, dilation=1, norm_layer=None, use_attention=True):
         super(Bottleneck, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -90,6 +168,11 @@ class Bottleneck(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
+        
+        # Use unified ESCN-style attention
+        self.use_attention = use_attention
+        if use_attention:
+            self.attention = ESCNAttention(planes * self.expansion)
 
     def forward(self, x):
         identity = x
@@ -104,6 +187,10 @@ class Bottleneck(nn.Module):
 
         out = self.conv3(out)
         out = self.bn3(out)
+        
+        # Apply unified attention
+        if self.use_attention:
+            out = self.attention(out)
 
         if self.downsample is not None:
             identity = self.downsample(x)
@@ -114,25 +201,74 @@ class Bottleneck(nn.Module):
         return out
 
 
+class FeatureRefinementModule(nn.Module):
+    """Enhanced feature refinement module that combines self-attention with convolutions"""
+    def __init__(self, in_channels, reduction_ratio=8):
+        super(FeatureRefinementModule, self).__init__()
+        
+        # Context modeling with self-attention
+        self.query_conv = nn.Conv2d(in_channels, in_channels // reduction_ratio, kernel_size=1)
+        self.key_conv = nn.Conv2d(in_channels, in_channels // reduction_ratio, kernel_size=1)
+        self.value_conv = nn.Conv2d(in_channels, in_channels, kernel_size=1)
+        
+        # Feature enhancement with convolutions
+        self.enhance = nn.Sequential(
+            nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True)
+        )
+        
+        self.gamma = nn.Parameter(torch.zeros(1))
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, x):
+        batch_size, channels, height, width = x.size()
+        
+        # Self-attention branch
+        proj_query = self.query_conv(x).view(batch_size, -1, height * width).permute(0, 2, 1)
+        proj_key = self.key_conv(x).view(batch_size, -1, height * width)
+        attention = self.softmax(torch.bmm(proj_query, proj_key))
+        
+        proj_value = self.value_conv(x).view(batch_size, -1, height * width)
+        attention_feat = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        attention_feat = attention_feat.view(batch_size, channels, height, width)
+        
+        # Convolution branch for feature enhancement
+        enhanced_feat = self.enhance(x)
+        
+        # Combine both branches
+        out = x + self.gamma * attention_feat + enhanced_feat
+        
+        return out
+
+
 @BACKBONES.register_module
 class ResNetWrapper(nn.Module):
-
     def __init__(self, 
-                resnet = 'resnet18',
+                resnet='resnet18',
                 pretrained=True,
                 replace_stride_with_dilation=[False, False, False],
                 out_conv=False,
                 fea_stride=8,
                 out_channel=128,
                 in_channels=[64, 128, 256, 512],
+                use_attention=True,
+                use_refinement=True,  # Changed from self_attention to use_refinement for clarity
                 cfg=None):
         super(ResNetWrapper, self).__init__()
         self.cfg = cfg
-        self.in_channels = in_channels 
+        self.in_channels = in_channels
+        self.use_attention = use_attention
+        self.use_refinement = use_refinement
 
+        # Create the base ResNet model
         self.model = eval(resnet)(
             pretrained=pretrained,
-            replace_stride_with_dilation=replace_stride_with_dilation, in_channels=self.in_channels)
+            replace_stride_with_dilation=replace_stride_with_dilation, 
+            in_channels=self.in_channels,
+            use_attention=use_attention)
+        
+        # Optional output convolution
         self.out = None
         if out_conv:
             out_channel = 512
@@ -142,23 +278,37 @@ class ResNetWrapper(nn.Module):
                 break
             self.out = conv1x1(
                 out_channel * self.model.expansion, cfg.featuremap_out_channel)
+        
+        # Add feature refinement modules for each output feature map
+        if self.use_refinement:
+            self.refine_modules = nn.ModuleList()
+            for i, channels in enumerate([ch * self.model.expansion for ch in self.in_channels if ch > 0]):
+                self.refine_modules.append(FeatureRefinementModule(channels))
 
     def forward(self, x):
-        x = self.model(x)
+        features = self.model(x)
+        
+        # Apply feature refinement to each feature map if enabled
+        if self.use_refinement:
+            for i in range(len(features)):
+                features[i] = self.refine_modules[i](features[i])
+        
+        # Apply output convolution to the last feature map if needed
         if self.out:
-            x[-1] = self.out(x[-1])
-        return x
+            features[-1] = self.out(features[-1])
+            
+        return features
 
 
 class ResNet(nn.Module):
-
     def __init__(self, block, layers, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
-                 norm_layer=None, in_channels=None):
+                 norm_layer=None, in_channels=None, use_attention=True):
         super(ResNet, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
+        self.use_attention = use_attention
 
         self.inplanes = 64
         self.dilation = 1
@@ -177,19 +327,20 @@ class ResNet(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.in_channels = in_channels
-        self.layer1 = self._make_layer(block, in_channels[0], layers[0])
+        
+        # Create ResNet layers with attention
+        self.layer1 = self._make_layer(block, in_channels[0], layers[0], use_attention=use_attention)
         self.layer2 = self._make_layer(block, in_channels[1], layers[1], stride=2,
-                                       dilate=replace_stride_with_dilation[0])
+                                       dilate=replace_stride_with_dilation[0], use_attention=use_attention)
         self.layer3 = self._make_layer(block, in_channels[2], layers[2], stride=2,
-                                       dilate=replace_stride_with_dilation[1])
+                                       dilate=replace_stride_with_dilation[1], use_attention=use_attention)
         if in_channels[3] > 0:
             self.layer4 = self._make_layer(block, in_channels[3], layers[3], stride=2,
-                                           dilate=replace_stride_with_dilation[2])
+                                           dilate=replace_stride_with_dilation[2], use_attention=use_attention)
+        
         self.expansion = block.expansion
 
-        # self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        # self.fc = nn.Linear(512 * block.expansion, num_classes)
-
+        # Initialize weights
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(
@@ -198,9 +349,7 @@ class ResNet(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
-        # Zero-initialize the last BN in each residual branch,
-        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
-        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
+        # Zero-initialize the last BN in each residual branch
         if zero_init_residual:
             for m in self.modules():
                 if isinstance(m, Bottleneck):
@@ -208,7 +357,7 @@ class ResNet(nn.Module):
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilate=False):
+    def _make_layer(self, block, planes, blocks, stride=1, dilate=False, use_attention=True):
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
@@ -223,12 +372,12 @@ class ResNet(nn.Module):
 
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
-                            self.base_width, previous_dilation, norm_layer))
+                            self.base_width, previous_dilation, norm_layer, use_attention=use_attention))
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
             layers.append(block(self.inplanes, planes, groups=self.groups,
                                 base_width=self.base_width, dilation=self.dilation,
-                                norm_layer=norm_layer))
+                                norm_layer=norm_layer, use_attention=use_attention))
 
         return nn.Sequential(*layers)
 
@@ -246,7 +395,7 @@ class ResNet(nn.Module):
             x = layer(x)
             out_layers.append(x)
 
-        return out_layers 
+        return out_layers
 
 
 def _resnet(arch, block, layers, pretrained, progress, **kwargs):

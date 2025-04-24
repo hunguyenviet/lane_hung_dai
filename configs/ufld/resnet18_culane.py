@@ -4,15 +4,23 @@ net = dict(
 
 backbone = dict(
     type='ResNetWrapper',
-    resnet='resnet50',
+    resnet='resnet34',
     pretrained=True,
     replace_stride_with_dilation=[False, False, False],
     out_conv=False,
 )
-featuremap_out_channel = 2048
+featuremap_out_channel = 64
 
 griding_num = 200
 num_classes = 4
+neck=dict(
+    type='FPN',
+    in_channels=[64, 128, 256, 512],
+    out_channels=64,
+    num_outs=4,
+    #trans_idx=-1,  
+)
+
 heads = dict(type='LaneCls',
         dim = (griding_num + 1, 18, num_classes))
 
@@ -24,7 +32,7 @@ optimizer = dict(
 )
 
 epochs = 1000
-batch_size = 16
+batch_size = 8
 total_iter = (88880 // batch_size + 1) * epochs
 import math
 scheduler = dict(

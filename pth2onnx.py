@@ -92,7 +92,7 @@ def convert(model, config_path, model_path, test_image_path, accuracy, size):
 # Thiết lập các tham số trực tiếp thay vì dùng argparse
 torch.backends.cudnn.benchmark = True
 config_path = '/root/lanedet/configs/ufld/resnet18_culane.py'
-model_path = '/root/lanedet/ufld_r18_culane.pth'
+model_path = '/root/lanedet/work_dirs/CULane/20250413_131802_lr_1e-02_b_8/ckpt/best.pth'
 test_image_path = '/root/lanedet/images/00000.jpg'
 accuracy = 'fp32'  # hoặc 'fp16' tùy ý
 size = (800, 288)
